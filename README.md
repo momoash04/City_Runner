@@ -1,8 +1,3 @@
-Of course! A good README file is essential for any project. It serves as a guide for users, explaining what the game is, how to run it, and what its features are.
-
-Here is a comprehensive README file for your "City Runner" game, written in Markdown format. You can save this text into a file named README.md in the same directory as your game.
-
-City Runner
 
 City Runner is a vibrant, fast-paced 2D endless runner game built with Python and Pygame. The objective is to run as far as you can, dodge obstacles, and collect coins across beautifully rendered cities around the world. Unlock a diverse cast of characters, each with unique abilities, and compete against your own high score!
 
