@@ -16,11 +16,9 @@ Rome: Evade ancient columns and see the Colosseum at a golden sunset.
 
 New York: Navigate a busy street with the Statue of Liberty and skyscrapers in the background.
 
-10+ Unlockable Characters: Use coins collected during gameplay to purchase a variety of characters in the shop. Play as a stealthy Ninja, a high-jumping Superhero, a swashbuckling Pirate, a shambling Zombie, and more!
+10 Unlockable Characters: Use coins collected during gameplay to purchase a variety of characters in the shop. Play as a stealthy Ninja, a high-jumping Superhero, a swashbuckling Pirate, a shambling Zombie, and more!
 
 Character-Specific Abilities: Certain characters have unique gameplay traits, such as the Superhero's double jump or the Ninja's chance to gain a protective shield.
-
-Persistent Data Saving: Your high score, total coins, and all unlocked characters are automatically saved to a gamedata.txt file, so your progress is never lost.
 
 Dynamic Difficulty: The game's speed gradually increases the longer you survive, ensuring a constant challenge.
 
