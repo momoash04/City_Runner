@@ -1,13 +1,12 @@
 
 City Runner is a vibrant, fast-paced 2D endless runner game built with Python and Pygame. The objective is to run as far as you can, dodge obstacles, and collect coins across beautifully rendered cities around the world. Unlock a diverse cast of characters, each with unique abilities, and compete against your own high score!
 
-The game features persistent data, meaning your high score, coin balance, and purchased characters are saved automatically between sessions.
 
 Core Features
 
-Five Unique Arenas: Run through themed levels representing iconic cities:
+Five Unique Arenas: Run through themed arenas representing iconic cities:
 
-Giza: Dodge obstacles amidst the pyramids and the Sphinx under a desert sun.
+Giza: Dodge obstacles amidst the pyramids  under a desert sun.
 
 London: Dash past Tower Bridge and the Shard on an overcast day.
 
@@ -77,13 +76,7 @@ Sound Files (Optional). The code is set up to safely handle missing sound files 
 
 jump.wav
 
-coin.wav
-
 lose.wav
-
-high_score.wav
-
-background.wav (for looping music)
 
 Run the Game. Open a terminal or command prompt, navigate to the directory where you saved the file, and run:
 
