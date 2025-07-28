@@ -3,6 +3,8 @@ import random
 import sys
 import os
 from pygame import gfxdraw
+import math
+import numpy as np
 
 pygame.init()
 pygame.mixer.init()
@@ -48,7 +50,14 @@ try:
     lose_sound = load_sound("lose.wav")
     high_score_sound = load_sound("high_score.wav")
     background_music = load_sound("background.wav")
-    background_music.play(-1)  # Loop background music
+    if hasattr(background_music, 'play'):
+        try:
+            background_music.play(-1)  # Loop background music
+        except TypeError:
+            try:
+                background_music.play()
+            except Exception:
+                pass
 except:
     pass
 
@@ -166,6 +175,8 @@ class CartoonCharacter:
             self.draw_pirate_character(screen)
         elif self.character_type == "zombie":
             self.draw_zombie_character(screen)
+        elif self.character_type == "curly_girl":
+            self.draw_curly_girl_character(screen)
             
         # Draw shield if active
         if self.shield_active:
@@ -490,6 +501,122 @@ class CartoonCharacter:
         pygame.draw.line(screen, (150, 200, 150), (self.x - 10, self.y - 5), (self.x - 20, self.y), 3)
         pygame.draw.line(screen, (150, 200, 150), (self.x + 10, self.y - 5), (self.x + 20, self.y), 3)
 
+   
+        
+
+    
+    def draw_curly_girl_character(self, screen):
+        # Colors
+        SKIN = (255, 218, 185)
+        HAIR = (101, 67, 33)
+        DRESS = (255, 165, 0)
+        EYE_WHITE = (255, 255, 255)
+        IRIS = (89, 55, 34)
+        BLUSH = (255, 200, 200)
+        MOUTH = (200, 60, 60)
+        BOW = (255, 100, 100)
+        LEGS = (70, 60, 70)
+        EYELASHES = (50, 30, 20)
+        HAIR_HIGHLIGHT = (121, 85, 61)
+        SMOKE = (200, 200, 200)
+
+        x, y = self.x, self.y
+
+        # Head
+        pygame.draw.ellipse(screen, SKIN, (x - 12, y - 38, 24, 28))
+
+        # Hair with curls and highlights
+        pygame.draw.ellipse(screen, HAIR, (x - 20, y - 48, 40, 20))
+        curl_positions = [
+            (x - 15, y - 40), (x - 5, y - 45), (x + 5, y - 45), (x + 15, y - 40),
+            (x - 18, y - 30), (x + 18, y - 30), (x - 20, y - 20), (x + 20, y - 20)
+        ]
+        for cx, cy in curl_positions:
+            pygame.draw.circle(screen, HAIR, (cx, cy), 8)
+            pygame.draw.circle(screen, HAIR_HIGHLIGHT, (cx + 2, cy - 2), 3)
+
+        # Eyes
+        pygame.draw.ellipse(screen, EYE_WHITE, (x - 10, y - 28, 8, 5))
+        pygame.draw.ellipse(screen, EYE_WHITE, (x + 2, y - 28, 8, 5))
+        pygame.draw.ellipse(screen, IRIS, (x - 8, y - 26, 4, 4))
+        pygame.draw.ellipse(screen, IRIS, (x + 4, y - 26, 4, 4))
+        pygame.draw.ellipse(screen, (0, 0, 0), (x - 7, y - 25, 2, 2))
+        pygame.draw.ellipse(screen, (0, 0, 0), (x + 5, y - 25, 2, 2))
+
+        # Eyelashes
+        lashes_left = [(x - 10, y - 28), (x - 12, y - 30), (x - 8, y - 28), (x - 10, y - 30)]
+        lashes_right = [(x + 10, y - 28), (x + 12, y - 30), (x + 8, y - 28), (x + 10, y - 30)]
+        for i in range(0, len(lashes_left), 2):
+            pygame.draw.line(screen, EYELASHES, lashes_left[i], lashes_left[i + 1], 1)
+            pygame.draw.line(screen, EYELASHES, lashes_right[i], lashes_right[i + 1], 1)
+
+        # Blush
+        pygame.draw.circle(screen, BLUSH, (x - 14, y - 20), 3, 1)
+        pygame.draw.circle(screen, BLUSH, (x + 14, y - 20), 3, 1)
+
+        # Smiley mouth
+        pygame.draw.arc(screen, MOUTH, (x - 8, y - 14, 16, 10), math.pi + 0.2, 2 * math.pi - 0.2, 2)
+
+        # Dress — elegant flare
+        pygame.draw.rect(screen, DRESS, (x - 12, y - 10, 24, 15))  # Bodice
+        pygame.draw.polygon(screen, DRESS, [  # Flared skirt
+            (x - 12, y + 5),
+            (x - 25, y + 35),
+            (x + 25, y + 35),
+            (x + 12, y + 5)
+        ])
+        pygame.draw.line(screen, (200, 120, 0), (x - 12, y + 5), (x + 12, y + 5), 2)  # Waistband
+
+        # Arms
+        left_hand = (x - 25, y + 8)
+        right_hand = (x + 25, y + 8)
+        pygame.draw.line(screen, SKIN, (x - 12, y), left_hand, 3)
+        pygame.draw.line(screen, SKIN, (x + 12, y), right_hand, 3)
+
+        # Cigarette in right hand with brown filter and smoke
+        filter_x = right_hand[0]
+        body_x = filter_x + 3
+        tip_x = body_x + 6
+        smoke_start_x = tip_x + 2
+        smoke_start_y = right_hand[1]
+
+        pygame.draw.rect(screen, (139, 69, 19), (filter_x, right_hand[1], 3, 2))         # Brown filter
+        pygame.draw.rect(screen, (255, 255, 255), (body_x, right_hand[1], 6, 2))         # White body
+        pygame.draw.rect(screen, (255, 0, 0), (tip_x, right_hand[1], 2, 2))              # Lit red tip
+
+        # Smoke trail
+        smoke_path = [
+            (smoke_start_x, smoke_start_y - 5),
+            (smoke_start_x - 2, smoke_start_y - 12),
+            (smoke_start_x + 1, smoke_start_y - 18),
+            (smoke_start_x - 3, smoke_start_y - 25),
+            (smoke_start_x, smoke_start_y - 32)
+        ]
+        for (sx, sy) in smoke_path:
+            pygame.draw.circle(screen, SMOKE, (sx, sy), 3)
+
+        # Legs animation
+        frame = int(self.run_animation_frame)
+        if frame == 0:
+            pygame.draw.line(screen, LEGS, (x - 7, y + 20), (x - 10, y + 40), 3)
+            pygame.draw.line(screen, LEGS, (x + 7, y + 20), (x + 4, y + 40), 3)
+        elif frame == 1:
+            pygame.draw.line(screen, LEGS, (x - 7, y + 20), (x - 12, y + 35), 3)
+            pygame.draw.line(screen, LEGS, (x + 7, y + 20), (x + 7, y + 40), 3)
+        elif frame == 2:
+            pygame.draw.line(screen, LEGS, (x - 7, y + 20), (x - 4, y + 40), 3)
+            pygame.draw.line(screen, LEGS, (x + 7, y + 20), (x + 10, y + 40), 3)
+        else:
+            pygame.draw.line(screen, LEGS, (x - 7, y + 20), (x - 7, y + 40), 3)
+            pygame.draw.line(screen, LEGS, (x + 7, y + 20), (x + 12, y + 35), 3)
+
+        # Shoes
+        pygame.draw.ellipse(screen, (0, 0, 0), (x - 12, y + 38, 10, 5))
+        pygame.draw.ellipse(screen, (0, 0, 0), (x + 2, y + 38, 10, 5))
+        pygame.draw.ellipse(screen, (50, 50, 50), (x - 10, y + 39, 6, 3))
+        pygame.draw.ellipse(screen, (50, 50, 50), (x + 4, y + 39, 6, 3))
+
+
 
 #  city-themed obstacles class
 class Obstacle:
@@ -502,7 +629,7 @@ class Obstacle:
         self.passed = False
         self.arena_type = arena_type
 
-        if random.random() < 0.3 and self.height > 40:  
+        if random.random() < 0.3 and self.height > 40:
             self.y -= random.randint(10, 20)
     
     def update(self):
@@ -522,29 +649,39 @@ class Obstacle:
     
     def draw_giza_obstacle(self, screen):
         if self.type == "car":
-            # Draw taxi
-            pygame.draw.rect(screen, (200, 200, 0), (self.x, self.y, self.width, self.height))
-            pygame.draw.rect(screen, BLACK, (self.x + 5, self.y + 5, self.width - 10, 10))
+            # More detailed taxi
+            pygame.draw.rect(screen, (200, 200, 0), (self.x, self.y, self.width, self.height), border_radius=8)
+            pygame.draw.rect(screen, BLACK, (self.x + 5, self.y + 5, self.width - 10, 10), border_radius=4)
             # Windows
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 15, 10, 10))
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 15, 10, 10))
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 15, 10, 10), border_radius=2)
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 15, 10, 10), border_radius=2)
+            # Headlights
+            pygame.draw.circle(screen, YELLOW, (int(self.x + 5), int(self.y + self.height - 3)), 3)
+            pygame.draw.circle(screen, YELLOW, (int(self.x + self.width - 5), int(self.y + self.height - 3)), 3)
             # Wheels
-            pygame.draw.circle(screen, BLACK, (self.x + 10, self.y + self.height - 5), 5)
-            pygame.draw.circle(screen, BLACK, (self.x + self.width - 10, self.y + self.height - 5), 5)
+            pygame.draw.circle(screen, BLACK, (int(self.x + 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, BLACK, (int(self.x + self.width - 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (120,120,120), (int(self.x + 10), int(self.y + self.height - 5)), 2)
+            pygame.draw.circle(screen, (120,120,120), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 2)
         elif self.type == "trashcan":
-            # Draw trash can
-            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, self.height))
-            pygame.draw.rect(screen, (150, 150, 150), (self.x + 2, self.y + 2, self.width - 4, 5))
+            # More detailed trash can
+            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, self.height), border_radius=4)
+            pygame.draw.rect(screen, (150, 150, 150), (self.x + 2, self.y + 2, self.width - 4, 5), border_radius=2)
             # Lid
             pygame.draw.ellipse(screen, (80, 80, 80), (self.x, self.y - 5, self.width, 10))
+            # Handles
+            pygame.draw.rect(screen, (120,120,120), (self.x + 2, self.y - 8, self.width - 4, 3), border_radius=2)
         elif self.type == "bench":
-            # Draw bench
-            pygame.draw.rect(screen, BROWN, (self.x, self.y, self.width, 10))
+            # More detailed bench
+            pygame.draw.rect(screen, BROWN, (self.x, self.y, self.width, 10), border_radius=3)
+            # Slats
+            for i in range(3):
+                pygame.draw.line(screen, (160, 82, 45), (self.x, self.y + 3 + i*3), (self.x + self.width, self.y + 3 + i*3), 2)
             # Legs
-            pygame.draw.rect(screen, BROWN, (self.x, self.y + 10, 5, 20))
-            pygame.draw.rect(screen, BROWN, (self.x + self.width - 5, self.y + 10, 5, 20))
+            pygame.draw.rect(screen, BROWN, (self.x, self.y + 10, 5, 20), border_radius=2)
+            pygame.draw.rect(screen, BROWN, (self.x + self.width - 5, self.y + 10, 5, 20), border_radius=2)
         else:  # cone
-            # Draw traffic cone
+            # More detailed traffic cone
             pygame.draw.polygon(screen, ORANGE, 
                               [(self.x + self.width//2, self.y), 
                                (self.x, self.y + self.height), 
@@ -553,120 +690,175 @@ class Obstacle:
                             [(self.x + self.width//2, self.y + 5), 
                              (self.x + 5, self.y + self.height - 5), 
                              (self.x + self.width - 5, self.y + self.height - 5)], 2)
+            # Base
+            pygame.draw.rect(screen, (180, 100, 0), (self.x, self.y + self.height - 5, self.width, 5), border_radius=2)
     
     def draw_london_obstacle(self, screen):
         if self.type == "car":
-            # Draw black cab
-            pygame.draw.rect(screen, BLACK, (self.x, self.y, self.width, self.height))
+            # More detailed black cab
+            pygame.draw.rect(screen, BLACK, (self.x, self.y, self.width, self.height), border_radius=8)
+            pygame.draw.rect(screen, (60, 60, 60), (self.x + 5, self.y + 5, self.width - 10, 10), border_radius=4)
             # Windows
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 5, 10, 10))
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 5, 10, 10))
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 5, 10, 10), border_radius=2)
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 5, 10, 10), border_radius=2)
+            # Headlights
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + 5), int(self.y + self.height - 3)), 3)
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + self.width - 5), int(self.y + self.height - 3)), 3)
             # Wheels
-            pygame.draw.circle(screen, (50, 50, 50), (self.x + 10, self.y + self.height - 5), 5)
-            pygame.draw.circle(screen, (50, 50, 50), (self.x + self.width - 10, self.y + self.height - 5), 5)
+            pygame.draw.circle(screen, (50, 50, 50), (int(self.x + 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (50, 50, 50), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + 10), int(self.y + self.height - 5)), 2)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 2)
         elif self.type == "trashcan":
-            # Draw UK-style trash can
-            pygame.draw.rect(screen, (0, 100, 0), (self.x, self.y, self.width, self.height))
-            pygame.draw.rect(screen, (0, 150, 0), (self.x + 2, self.y + 2, self.width - 4, 5))
+            # More detailed UK-style trash can
+            pygame.draw.rect(screen, (0, 100, 0), (self.x, self.y, self.width, self.height), border_radius=4)
+            pygame.draw.rect(screen, (0, 150, 0), (self.x + 2, self.y + 2, self.width - 4, 5), border_radius=2)
+            # Gold band
+            pygame.draw.rect(screen, (200, 180, 0), (self.x, self.y + self.height//2, self.width, 4))
         elif self.type == "bench":
-            # Draw park bench
-            pygame.draw.rect(screen, (139, 69, 19), (self.x, self.y, self.width, 10))
+            # More detailed park bench
+            pygame.draw.rect(screen, (139, 69, 19), (self.x, self.y, self.width, 10), border_radius=3)
             # Back
-            pygame.draw.rect(screen, (139, 69, 19), (self.x, self.y - 20, 5, 20))
-            pygame.draw.rect(screen, (139, 69, 19), (self.x + self.width - 5, self.y - 20, 5, 20))
-            pygame.draw.rect(screen, (139, 69, 19), (self.x, self.y - 20, self.width, 5))
+            pygame.draw.rect(screen, (139, 69, 19), (self.x, self.y - 20, 5, 20), border_radius=2)
+            pygame.draw.rect(screen, (139, 69, 19), (self.x + self.width - 5, self.y - 20, 5, 20), border_radius=2)
+            pygame.draw.rect(screen, (139, 69, 19), (self.x, self.y - 20, self.width, 5), border_radius=2)
+            # Slats
+            for i in range(2):
+                pygame.draw.line(screen, (160, 82, 45), (self.x, self.y + 3 + i*3), (self.x + self.width, self.y + 3 + i*3), 2)
         else:  # barrier
-            # Draw police barrier
-            pygame.draw.rect(screen, (200, 0, 0), (self.x, self.y, self.width, 15))
-            pygame.draw.rect(screen, WHITE, (self.x, self.y, self.width, 5))
-            pygame.draw.rect(screen, WHITE, (self.x, self.y + 10, self.width, 5))
+            # More detailed police barrier
+            pygame.draw.rect(screen, (200, 0, 0), (self.x, self.y, self.width, 15), border_radius=3)
+            pygame.draw.rect(screen, WHITE, (self.x, self.y, self.width, 5), border_radius=2)
+            pygame.draw.rect(screen, WHITE, (self.x, self.y + 10, self.width, 5), border_radius=2)
+            # Posts
+            pygame.draw.rect(screen, (80,80,80), (self.x, self.y-10, 5, 10), border_radius=2)
+            pygame.draw.rect(screen, (80,80,80), (self.x+self.width-5, self.y-10, 5, 10), border_radius=2)
     
     def draw_paris_obstacle(self, screen):
         if self.type == "car":
-            # Draw small European car
-            pygame.draw.rect(screen, (200, 0, 0), (self.x, self.y, self.width, self.height))
+            # More detailed small European car
+            pygame.draw.rect(screen, (200, 0, 0), (self.x, self.y, self.width, self.height), border_radius=8)
+            pygame.draw.rect(screen, (120, 0, 0), (self.x + 5, self.y + 5, self.width - 10, 10), border_radius=4)
             # Windows
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 5, 10, 10))
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 5, 10, 10))
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 5, 10, 10), border_radius=2)
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 5, 10, 10), border_radius=2)
+            # Headlights
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + 5), int(self.y + self.height - 3)), 3)
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + self.width - 5), int(self.y + self.height - 3)), 3)
             # Wheels
-            pygame.draw.circle(screen, (50, 50, 50), (self.x + 10, self.y + self.height - 5), 5)
-            pygame.draw.circle(screen, (50, 50, 50), (self.x + self.width - 10, self.y + self.height - 5), 5)
+            pygame.draw.circle(screen, (50, 50, 50), (int(self.x + 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (50, 50, 50), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + 10), int(self.y + self.height - 5)), 2)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 2)
         elif self.type == "trashcan":
-            # Draw Parisian trash can
-            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y, self.width, self.height))
+            # More detailed Parisian trash can
+            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y, self.width, self.height), border_radius=4)
             # Green top
-            pygame.draw.rect(screen, (0, 100, 0), (self.x, self.y, self.width, 5))
+            pygame.draw.rect(screen, (0, 100, 0), (self.x, self.y, self.width, 5), border_radius=2)
+            # Handles
+            pygame.draw.rect(screen, (120,120,120), (self.x + 2, self.y - 8, self.width - 4, 3), border_radius=2)
         elif self.type == "bench":
-            # Draw ornate bench
-            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, 10))
+            # More detailed ornate bench
+            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, 10), border_radius=3)
             # Ornate legs
-            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y + 10, 5, 20))
-            pygame.draw.rect(screen, (150, 150, 150), (self.x + self.width - 5, self.y + 10, 5, 20))
+            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y + 10, 5, 20), border_radius=2)
+            pygame.draw.rect(screen, (150, 150, 150), (self.x + self.width - 5, self.y + 10, 5, 20), border_radius=2)
             # Decorative elements
-            pygame.draw.circle(screen, (200, 200, 200), (self.x + self.width//2, self.y + 5), 3)
+            pygame.draw.circle(screen, (200, 200, 200), (int(self.x + self.width//2), int(self.y + 5)), 3)
+            # Slats
+            for i in range(2):
+                pygame.draw.line(screen, (180, 180, 180), (self.x, self.y + 3 + i*3), (self.x + self.width, self.y + 3 + i*3), 2)
         else:  # cafe table
-            # Draw small cafe table
-            pygame.draw.rect(screen, BROWN, (self.x, self.y, self.width, 5))
+            # More detailed small cafe table
+            pygame.draw.rect(screen, BROWN, (self.x, self.y, self.width, 5), border_radius=2)
             # Leg
-            pygame.draw.rect(screen, BROWN, (self.x + self.width//2 - 2, self.y + 5, 4, 20))
+            pygame.draw.rect(screen, BROWN, (self.x + self.width//2 - 2, self.y + 5, 4, 20), border_radius=2)
+            # Table top
+            pygame.draw.ellipse(screen, (180, 180, 180), (self.x-2, self.y-4, self.width+4, 8))
     
     def draw_rome_obstacle(self, screen):
         if self.type == "car":
-            # Draw small Italian car
-            pygame.draw.rect(screen, (0, 0, 200), (self.x, self.y, self.width, self.height))
+            # More detailed small Italian car
+            pygame.draw.rect(screen, (0, 0, 200), (self.x, self.y, self.width, self.height), border_radius=8)
+            pygame.draw.rect(screen, (0, 0, 120), (self.x + 5, self.y + 5, self.width - 10, 10), border_radius=4)
             # Windows
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 5, 10, 10))
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 5, 10, 10))
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 5, 10, 10), border_radius=2)
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 5, 10, 10), border_radius=2)
+            # Headlights
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + 5), int(self.y + self.height - 3)), 3)
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + self.width - 5), int(self.y + self.height - 3)), 3)
             # Wheels
-            pygame.draw.circle(screen, (50, 50, 50), (self.x + 10, self.y + self.height - 5), 5)
-            pygame.draw.circle(screen, (50, 50, 50), (self.x + self.width - 10, self.y + self.height - 5), 5)
+            pygame.draw.circle(screen, (50, 50, 50), (int(self.x + 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (50, 50, 50), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + 10), int(self.y + self.height - 5)), 2)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 2)
         elif self.type == "trashcan":
-            # Draw Roman trash can
-            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, self.height))
+            # More detailed Roman trash can
+            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, self.height), border_radius=4)
             # Decorative stripes
-            pygame.draw.rect(screen, (200, 200, 200), (self.x, self.y, self.width, 3))
-            pygame.draw.rect(screen, (200, 200, 200), (self.x, self.y + self.height - 3, self.width, 3))
+            pygame.draw.rect(screen, (200, 200, 200), (self.x, self.y, self.width, 3), border_radius=2)
+            pygame.draw.rect(screen, (200, 200, 200), (self.x, self.y + self.height - 3, self.width, 3), border_radius=2)
+            # Handles
+            pygame.draw.rect(screen, (120,120,120), (self.x + 2, self.y - 8, self.width - 4, 3), border_radius=2)
         elif self.type == "bench":
-            # Draw stone bench
-            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y, self.width, 15))
+            # More detailed stone bench
+            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y, self.width, 15), border_radius=4)
             # Carved details
-            pygame.draw.line(screen, (100, 100, 100), (self.x + 5, self.y + 5, self.x + self.width - 5, self.y + 5), 2)
+            pygame.draw.line(screen, (100, 100, 100), (self.x + 5, self.y + 5), (self.x + self.width - 5, self.y + 5), 2)
+            # Slats
+            for i in range(2):
+                pygame.draw.line(screen, (180, 180, 180), (self.x, self.y + 8 + i*3), (self.x + self.width, self.y + 8 + i*3), 2)
         else:  # column
-            # Draw broken column piece
-            pygame.draw.rect(screen, (200, 200, 200), (self.x, self.y, self.width, self.height))
+            # More detailed broken column piece
+            pygame.draw.rect(screen, (200, 200, 200), (self.x, self.y, self.width, self.height), border_radius=3)
             # Carved lines
             for i in range(3):
                 pygame.draw.line(screen, (150, 150, 150), 
                                (self.x, self.y + 5 + i*10), 
                                (self.x + self.width, self.y + 5 + i*10), 2)
+            # Top
+            pygame.draw.ellipse(screen, (180,180,180), (self.x, self.y-5, self.width, 10))
     
     def draw_newyork_obstacle(self, screen):
         if self.type == "car":
-            # Draw yellow taxi
-            pygame.draw.rect(screen, YELLOW, (self.x, self.y, self.width, self.height))
-            pygame.draw.rect(screen, BLACK, (self.x + 5, self.y + 5, self.width - 10, 10))
+            # More detailed yellow taxi
+            pygame.draw.rect(screen, YELLOW, (self.x, self.y, self.width, self.height), border_radius=8)
+            pygame.draw.rect(screen, BLACK, (self.x + 5, self.y + 5, self.width - 10, 10), border_radius=4)
             # Windows
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 15, 10, 10))
-            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 15, 10, 10))
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + 5, self.y + 15, 10, 10), border_radius=2)
+            pygame.draw.rect(screen, (150, 200, 255), (self.x + self.width - 15, self.y + 15, 10, 10), border_radius=2)
+            # Headlights
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + 5), int(self.y + self.height - 3)), 3)
+            pygame.draw.circle(screen, (255,255,180), (int(self.x + self.width - 5), int(self.y + self.height - 3)), 3)
             # Wheels
-            pygame.draw.circle(screen, BLACK, (self.x + 10, self.y + self.height - 5), 5)
-            pygame.draw.circle(screen, BLACK, (self.x + self.width - 10, self.y + self.height - 5), 5)
+            pygame.draw.circle(screen, BLACK, (int(self.x + 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, BLACK, (int(self.x + self.width - 10), int(self.y + self.height - 5)), 5)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + 10), int(self.y + self.height - 5)), 2)
+            pygame.draw.circle(screen, (180,180,180), (int(self.x + self.width - 10), int(self.y + self.height - 5)), 2)
         elif self.type == "trashcan":
-            # Draw NYC trash can
-            pygame.draw.rect(screen, (50, 50, 50), (self.x, self.y, self.width, self.height))
+            # More detailed NYC trash can
+            pygame.draw.rect(screen, (50, 50, 50), (self.x, self.y, self.width, self.height), border_radius=4)
             # Green lid
-            pygame.draw.rect(screen, (0, 100, 0), (self.x, self.y, self.width, 5))
+            pygame.draw.rect(screen, (0, 100, 0), (self.x, self.y, self.width, 5), border_radius=2)
+            # Handles
+            pygame.draw.rect(screen, (120,120,120), (self.x + 2, self.y - 8, self.width - 4, 3), border_radius=2)
         elif self.type == "bench":
-            # Draw park bench
-            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, 10))
+            # More detailed park bench
+            pygame.draw.rect(screen, (100, 100, 100), (self.x, self.y, self.width, 10), border_radius=3)
             # Legs
-            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y + 10, 5, 20))
-            pygame.draw.rect(screen, (150, 150, 150), (self.x + self.width - 5, self.y + 10, 5, 20))
+            pygame.draw.rect(screen, (150, 150, 150), (self.x, self.y + 10, 5, 20), border_radius=2)
+            pygame.draw.rect(screen, (150, 150, 150), (self.x + self.width - 5, self.y + 10, 5, 20), border_radius=2)
+            # Slats
+            for i in range(2):
+                pygame.draw.line(screen, (180, 180, 180), (self.x, self.y + 3 + i*3), (self.x + self.width, self.y + 3 + i*3), 2)
         else:  # hydrant
-            # Draw fire hydrant
-            pygame.draw.rect(screen, (200, 0, 0), (self.x, self.y, 15, 25))
+            # More detailed fire hydrant
+            pygame.draw.rect(screen, (200, 0, 0), (self.x, self.y, 15, 25), border_radius=4)
             # Top
-            pygame.draw.rect(screen, (150, 150, 150), (self.x - 5, self.y, 25, 5))
+            pygame.draw.rect(screen, (150, 150, 150), (self.x - 5, self.y, 25, 5), border_radius=2)
+            # Side nozzles
+            pygame.draw.circle(screen, (150, 150, 150), (int(self.x + 2), int(self.y + 10)), 3)
+            pygame.draw.circle(screen, (150, 150, 150), (int(self.x + 13), int(self.y + 10)), 3)
     
     def off_screen(self):
         return self.x + self.width < 0
@@ -810,12 +1002,12 @@ def draw_background(arena_type="giza"):
         draw_newyork_background()
 
 def draw_giza_background():
-    # Sky gradient
+    # Modern gradient background
     for y in range(HEIGHT):
         color = (
-            int(BABY_BLUE_TOP[0] * (1 - y / HEIGHT) + BABY_BLUE_BOTTOM[0] * (y / HEIGHT)),
-            int(BABY_BLUE_TOP[1] * (1 - y / HEIGHT) + BABY_BLUE_BOTTOM[1] * (y / HEIGHT)),
-            int(BABY_BLUE_TOP[2] * (1 - y / HEIGHT) + BABY_BLUE_BOTTOM[2] * (y / HEIGHT))
+            int(MODERN_GRADIENT_TOP[0] * (1 - y / HEIGHT) + MODERN_GRADIENT_BOTTOM[0] * (y / HEIGHT)),
+            int(MODERN_GRADIENT_TOP[1] * (1 - y / HEIGHT) + MODERN_GRADIENT_BOTTOM[1] * (y / HEIGHT)),
+            int(MODERN_GRADIENT_TOP[2] * (1 - y / HEIGHT) + MODERN_GRADIENT_BOTTOM[2] * (y / HEIGHT))
         )
         pygame.draw.line(screen, color, (0, y), (WIDTH, y))
     
@@ -824,18 +1016,32 @@ def draw_giza_background():
     # Sun
     pygame.draw.circle(screen, YELLOW, (WIDTH - 180, 80), 40)
     
-    # Pyramids in distance
+    # Parallax distant pyramids
+    pygame.draw.polygon(screen, (210, 180, 80), [(80, GROUND_HEIGHT), (180, GROUND_HEIGHT - 120), (280, GROUND_HEIGHT)])
+    pygame.draw.polygon(screen, (180, 150, 60), [(200, GROUND_HEIGHT), (320, GROUND_HEIGHT - 100), (440, GROUND_HEIGHT)])
+    # Midground pyramids
     pygame.draw.polygon(screen, (218, 165, 32), [(50, GROUND_HEIGHT), (200, GROUND_HEIGHT - 200), (350, GROUND_HEIGHT)])
     pygame.draw.polygon(screen, (184, 134, 11), [(250, GROUND_HEIGHT), (400, GROUND_HEIGHT - 220), (550, GROUND_HEIGHT)])
     pygame.draw.polygon(screen, (218, 165, 32), [(450, GROUND_HEIGHT), (550, GROUND_HEIGHT - 150), (650, GROUND_HEIGHT)])
-
-    
-    # Ground (sand)
-    pygame.draw.rect(screen, (194, 178, 128), (0, GROUND_HEIGHT, WIDTH, HEIGHT - GROUND_HEIGHT))
-    
-    # Sphinx
+    # Foreground sand dunes
+    for i in range(0, WIDTH, 120):
+        pygame.draw.ellipse(screen, (210, 190, 120), (i, GROUND_HEIGHT + 30, 180, 60))
+    # Palm trees
+    for i in range(3):
+        base_x = 150 + i * 250
+        pygame.draw.rect(screen, (139, 69, 19), (base_x, GROUND_HEIGHT - 60, 10, 60))
+        for j in range(5):
+            angle = j * 72
+            end_x = base_x + 30 * math.cos(math.radians(angle))
+            end_y = GROUND_HEIGHT - 60 + 30 * math.sin(math.radians(angle))
+            pygame.draw.line(screen, (34, 139, 34), (base_x + 5, GROUND_HEIGHT - 60), (end_x, end_y), 5)
+    # Sphinx (more detail)
     pygame.draw.rect(screen, (184, 134, 11), (WIDTH - 200, GROUND_HEIGHT - 50, 100, 50))
     pygame.draw.circle(screen, (184, 134, 11), (WIDTH - 200, GROUND_HEIGHT - 25), 25)
+    pygame.draw.rect(screen, (160, 120, 10), (WIDTH - 170, GROUND_HEIGHT - 30, 40, 20))
+    pygame.draw.circle(screen, (120, 80, 10), (WIDTH - 170, GROUND_HEIGHT - 20), 8)
+    # Ground (sand)
+    pygame.draw.rect(screen, (194, 178, 128), (0, GROUND_HEIGHT, WIDTH, HEIGHT - GROUND_HEIGHT))
 
 def draw_london_background():
     # Overcast sky gradient
@@ -848,27 +1054,40 @@ def draw_london_background():
             int(sky_top[2] * (1 - y / HEIGHT) + sky_bottom[2] * (y / HEIGHT))
         )
         pygame.draw.line(screen, color, (0, y), (WIDTH, y))
-
     draw_flag("uk")
-
+    # Distant skyline (silhouettes)
+    for i in range(6):
+        x = 100 + i * 120
+        w = 60 + (i % 2) * 30
+        h = 80 + (i % 3) * 40
+        pygame.draw.rect(screen, (120, 120, 130), (x, GROUND_HEIGHT - h - 80, w, h))
+        for j in range(3):
+            pygame.draw.rect(screen, (180, 180, 200), (x + 10 + j * 15, GROUND_HEIGHT - h - 80 + 10, 10, 20))
     # The Shard Silhouette
     shard_color = (100, 105, 110)
     pygame.draw.polygon(screen, shard_color, [(WIDTH-250, GROUND_HEIGHT), (WIDTH-220, GROUND_HEIGHT-300), (WIDTH-190, GROUND_HEIGHT)])
-    
-    # Big Ben in distance
+    # Big Ben in distance (with clock)
     pygame.draw.rect(screen, (150, 150, 100), (WIDTH - 450, GROUND_HEIGHT - 200, 40, 200))
     pygame.draw.rect(screen, (200, 200, 150), (WIDTH - 450, GROUND_HEIGHT - 220, 40, 20))
-    
-    # Tower Bridge
+    pygame.draw.circle(screen, (255,255,255), (WIDTH-430, GROUND_HEIGHT-210), 10)
+    pygame.draw.circle(screen, (0,0,0), (WIDTH-430, GROUND_HEIGHT-210), 8, 2)
+    # Tower Bridge (with arches)
     bridge_color = (160, 140, 120)
     pygame.draw.rect(screen, bridge_color, (100, GROUND_HEIGHT - 150, 60, 150))
     pygame.draw.rect(screen, bridge_color, (240, GROUND_HEIGHT - 150, 60, 150))
     pygame.draw.rect(screen, bridge_color, (100, GROUND_HEIGHT - 180, 200, 30))
-    
-    # Double-decker bus decoration
+    for i in range(3):
+        pygame.draw.arc(screen, (120, 120, 120), (120 + i*60, GROUND_HEIGHT - 60, 40, 40), math.pi, 2*math.pi, 3)
+    # Lamp posts
+    for i in range(4):
+        lx = 180 + i*120
+        pygame.draw.rect(screen, (80,80,80), (lx, GROUND_HEIGHT - 60, 8, 60))
+        pygame.draw.circle(screen, (255,255,180), (lx+4, GROUND_HEIGHT - 60), 8)
+    # Double-decker bus decoration (with windows)
     pygame.draw.rect(screen, (200,0,0), (WIDTH - 600, GROUND_HEIGHT - 40, 80, 40))
     pygame.draw.rect(screen, (150,0,0), (WIDTH - 600, GROUND_HEIGHT - 25, 80, 15))
-
+    for i in range(3):
+        pygame.draw.rect(screen, (255,255,255), (WIDTH-590+i*25, GROUND_HEIGHT-35, 20, 12))
     # Ground (street)
     pygame.draw.rect(screen, (100, 100, 100), (0, GROUND_HEIGHT, WIDTH, HEIGHT - GROUND_HEIGHT))
     pygame.draw.line(screen, YELLOW, (0, GROUND_HEIGHT + 20), (WIDTH, GROUND_HEIGHT + 20), 2)
@@ -884,28 +1103,39 @@ def draw_paris_background():
             int(sky_top[2] * (1 - y / HEIGHT) + sky_bottom[2] * (y / HEIGHT))
         )
         pygame.draw.line(screen, color, (0, y), (WIDTH, y))
-
     draw_flag("france")
-
-    # Notre Dame
+    # Distant skyline
+    for i in range(5):
+        x = 80 + i * 140
+        w = 60 + (i % 2) * 20
+        h = 70 + (i % 3) * 30
+        pygame.draw.rect(screen, (120, 120, 140), (x, GROUND_HEIGHT - h - 90, w, h))
+        for j in range(2):
+            pygame.draw.rect(screen, (200, 200, 220), (x + 10 + j * 20, GROUND_HEIGHT - h - 80, 12, 18))
+    # Notre Dame (with towers)
     cathedral_color = (60, 60, 80)
     pygame.draw.rect(screen, cathedral_color, (100, GROUND_HEIGHT - 180, 80, 180))
     pygame.draw.rect(screen, cathedral_color, (110, GROUND_HEIGHT - 220, 20, 40))
     pygame.draw.rect(screen, cathedral_color, (150, GROUND_HEIGHT - 220, 20, 40))
-    
-    # Eiffel Tower in distance
+    pygame.draw.circle(screen, (200,200,200), (140, GROUND_HEIGHT-200), 10)
+    # Eiffel Tower in distance (with more detail)
     eiffel_color = (50, 50, 70)
     pygame.draw.rect(screen, eiffel_color, (WIDTH - 150, GROUND_HEIGHT - 250, 10, 250))
     pygame.draw.polygon(screen, eiffel_color, [(WIDTH - 170, GROUND_HEIGHT - 50), (WIDTH - 145, GROUND_HEIGHT - 250), (WIDTH - 120, GROUND_HEIGHT - 50)])
     pygame.draw.rect(screen, eiffel_color, (WIDTH - 170, GROUND_HEIGHT - 150, 50, 10))
-    
-    # Louvre Museum
+    for i in range(3):
+        pygame.draw.line(screen, (80,80,100), (WIDTH-170+10*i, GROUND_HEIGHT-50), (WIDTH-145, GROUND_HEIGHT-250), 2)
+    # Louvre Museum (with glass pyramid)
     louvre_color = (80, 80, 100)
     pygame.draw.rect(screen, louvre_color, (300, GROUND_HEIGHT - 120, 250, 120))
-
+    pygame.draw.polygon(screen, (180,180,220), [(425, GROUND_HEIGHT-120), (400, GROUND_HEIGHT-60), (450, GROUND_HEIGHT-60)])
     # River Seine
     pygame.draw.rect(screen, (100, 120, 150), (0, GROUND_HEIGHT-20, WIDTH, 40))
-
+    # Street lamps
+    for i in range(3):
+        lx = 350 + i*120
+        pygame.draw.rect(screen, (80,80,80), (lx, GROUND_HEIGHT - 60, 8, 60))
+        pygame.draw.circle(screen, (255,255,180), (lx+4, GROUND_HEIGHT - 60), 8)
     # Ground (street)
     pygame.draw.rect(screen, (60, 60, 60), (0, GROUND_HEIGHT, WIDTH, HEIGHT - GROUND_HEIGHT))
 
@@ -920,31 +1150,36 @@ def draw_rome_background():
             int(sky_top[2] * (1 - y / HEIGHT) + sky_bottom[2] * (y / HEIGHT))
         )
         pygame.draw.line(screen, color, (0, y), (WIDTH, y))
-
     draw_flag("italy")
-    
-    # Pantheon Dome
+    # Distant skyline
+    for i in range(4):
+        x = 120 + i * 180
+        w = 70 + (i % 2) * 30
+        h = 60 + (i % 3) * 40
+        pygame.draw.rect(screen, (160, 150, 130), (x, GROUND_HEIGHT - h - 100, w, h))
+        for j in range(2):
+            pygame.draw.rect(screen, (200, 200, 200), (x + 10 + j * 20, GROUND_HEIGHT - h - 90, 12, 18))
+    # Pantheon Dome (with columns)
     pantheon_color = (160, 150, 130)
     pygame.draw.ellipse(screen, pantheon_color, (100, GROUND_HEIGHT-150, 200, 150))
     pygame.draw.rect(screen, pantheon_color, (100, GROUND_HEIGHT-75, 200, 75))
-
-
-    # Colosseum in distance
+    for i in range(6):
+        pygame.draw.rect(screen, (200,200,200), (120+i*25, GROUND_HEIGHT-75, 10, 60))
+    # Colosseum in distance (with arches)
     colosseum_color = (180, 160, 140)
     pygame.draw.ellipse(screen, colosseum_color, (WIDTH - 300, GROUND_HEIGHT - 120, 180, 120))
     pygame.draw.ellipse(screen, (0,0,0,50), (WIDTH - 300, GROUND_HEIGHT - 120, 180, 120), 10)
-
+    for i in range(5):
+        pygame.draw.arc(screen, (120,120,120), (WIDTH-280+i*30, GROUND_HEIGHT-40, 30, 30), math.pi, 2*math.pi, 3)
     # Cypress Trees
     tree_color = (40, 80, 40)
     pygame.draw.polygon(screen, tree_color, [(WIDTH-450, GROUND_HEIGHT), (WIDTH-420, GROUND_HEIGHT-150), (WIDTH-390, GROUND_HEIGHT)])
     pygame.draw.polygon(screen, tree_color, [(WIDTH-520, GROUND_HEIGHT), (WIDTH-490, GROUND_HEIGHT-120), (WIDTH-460, GROUND_HEIGHT)])
-
     # Ground (cobblestone)
     pygame.draw.rect(screen, (110, 110, 110), (0, GROUND_HEIGHT, WIDTH, HEIGHT - GROUND_HEIGHT))
     for i in range(0, WIDTH, 20):
         for j in range(GROUND_HEIGHT, HEIGHT, 20):
             pygame.draw.rect(screen, (90,90,90), (i+random.randint(-2,2), j+random.randint(-2,2), 15, 15))
-
 
 def draw_newyork_background():
     # Sky gradient (bright blue)
@@ -955,14 +1190,19 @@ def draw_newyork_background():
             int(237 * (1 - y / HEIGHT) + 250 * (y / HEIGHT))
         )
         pygame.draw.line(screen, color, (0, y), (WIDTH, y))
-
     draw_flag("usa")
-    
-    # Skyscrapers
+    # Distant skyline
+    for i in range(8):
+        x = 80 + i * 100
+        w = 40 + (i % 3) * 30
+        h = 120 + (i % 2) * 60
+        pygame.draw.rect(screen, (80, 80, 100), (x, GROUND_HEIGHT - h - 120, w, h))
+        for j in range(4):
+            pygame.draw.rect(screen, (255, 255, 180), (x + 8 + j * 10, GROUND_HEIGHT - h - 100, 8, 18))
+    # Skyscrapers (midground)
     pygame.draw.rect(screen, (100, 100, 100), (WIDTH - 200, GROUND_HEIGHT - 250, 40, 250))
     pygame.draw.rect(screen, (120, 120, 120), (WIDTH - 300, GROUND_HEIGHT - 300, 30, 300))
     pygame.draw.rect(screen, (80, 80, 80), (WIDTH - 400, GROUND_HEIGHT - 200, 25, 200))
-    
     # Windows
     for i in range(5):
         for j in range(10):
@@ -970,14 +1210,33 @@ def draw_newyork_background():
                 pygame.draw.rect(screen, YELLOW, (WIDTH - 195 + i*8, GROUND_HEIGHT - 240 + j*25, 5, 15))
                 pygame.draw.rect(screen, YELLOW, (WIDTH - 295 + i*6, GROUND_HEIGHT - 290 + j*30, 4, 15))
                 pygame.draw.rect(screen, YELLOW, (WIDTH - 395 + i*5, GROUND_HEIGHT - 190 + j*20, 4, 10))
-    
-    # Statue of Liberty
+    # Statue of Liberty (with torch)
     pygame.draw.rect(screen, (50, 150, 50), (WIDTH - 500, GROUND_HEIGHT - 150, 20, 150))
     pygame.draw.circle(screen, (50, 150, 50), (WIDTH - 490, GROUND_HEIGHT - 160), 25)
-    
+    pygame.draw.polygon(screen, (255, 215, 0), [(WIDTH-490, GROUND_HEIGHT-160), (WIDTH-480, GROUND_HEIGHT-180), (WIDTH-500, GROUND_HEIGHT-180)])
     # Ground (street)
     pygame.draw.rect(screen, (50, 50, 50), (0, GROUND_HEIGHT, WIDTH, HEIGHT - GROUND_HEIGHT))
     pygame.draw.line(screen, WHITE, (0, GROUND_HEIGHT + 20), (WIDTH, GROUND_HEIGHT + 20), 2)
+
+# --- Modernize Colors ---
+MODERN_BG = (30, 32, 40)
+MODERN_ACCENT = (60, 180, 220)
+MODERN_SHADOW = (20, 22, 28)
+MODERN_GRADIENT_TOP = (44, 62, 80)
+MODERN_GRADIENT_BOTTOM = (52, 73, 94)
+MODERN_GOLD = (255, 215, 80)
+MODERN_WHITE = (245, 245, 245)
+MODERN_YELLOW = (255, 235, 59)
+MODERN_GREEN = (76, 175, 80)
+MODERN_RED = (244, 67, 54)
+MODERN_ORANGE = (255, 152, 0)
+MODERN_BLUE = (33, 150, 243)
+MODERN_GREY = (120, 120, 120)
+
+# --- Regression Model for Placement ---
+def logistic(x, k=0.01, x0=1000):
+    """Logistic function for probability scaling."""
+    return 1 / (1 + np.exp(-k * (x - x0)))
 
 # Main Menu
 def main_menu(total_coins):
@@ -1106,20 +1365,21 @@ def arena_select_screen():
 def shop_screen(total_coins, current_character, owned_characters):
     characters = [
         {"name": "Default", "type": "default", "cost": 0, "desc": "The basic runner."},
-        {"name": "Ninja", "type": "ninja", "cost": 100, "desc": "Chance to gain a shield."},
-        {"name": "Robot", "type": "robot", "cost": 200, "desc": "Heavy but strong."},
-        {"name": "Alien", "type": "alien", "cost": 300, "desc": "Jumps with low gravity."},
-        {"name": "Superhero", "type": "superhero", "cost": 400, "desc": "Can perform a double jump."},
-        {"name": "Flash", "type": "flash", "cost": 500, "desc": "A very fast runner."},
-        {"name": "Wizard", "type": "wizard", "cost": 600, "desc": "A magical runner."},
-        {"name": "Spy", "type": "spy", "cost": 700, "desc": "A stealthy agent."},
-        {"name": "Pirate", "type": "pirate", "cost": 800, "desc": "A swashbuckling adventurer."},
-        {"name": "Zombie", "type": "zombie", "cost": 900, "desc": "A spooky, shambling runner."},
+        {"name": "Ninja", "type": "ninja", "cost": 0, "desc": "Chance to gain a shield."},
+        {"name": "Robot", "type": "robot", "cost": 0, "desc": "Heavy but strong."},
+        {"name": "Alien", "type": "alien", "cost": 0, "desc": "Jumps with low gravity."},
+        {"name": "Superhero", "type": "superhero", "cost": 0, "desc": "Can perform a double jump."},
+        {"name": "Flash", "type": "flash", "cost": 0, "desc": "A very fast runner."},
+        {"name": "Wizard", "type": "wizard", "cost": 0, "desc": "A magical runner."},
+        {"name": "Spy", "type": "spy", "cost": 0, "desc": "A stealthy agent."},
+        {"name": "Pirate", "type": "pirate", "cost": 0, "desc": "A swashbuckling adventurer."},
+        {"name": "Zombie", "type": "zombie", "cost": 0, "desc": "A spooky, shambling runner."},
+        {"name": "Hanya", "type": "curly_girl", "cost": 0, "desc": "ga3far."}
     ]
 
     selected_index = 0
     
-    list_w, list_h = 400, 500
+    list_w, list_h = 400, 550 # Adjusted height for new character
     list_x, list_y = 50, 150
     list_item_h = 50
 
